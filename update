@@ -1,0 +1,52 @@
+#!/bin/bash
+
+del="0"
+
+getopts c arg 
+case $arg in
+    c)
+        del="1"
+        ;;
+esac
+
+function clean() {
+    echo "cleaning ..."
+    sudo killall -9 apt* kpackage dpkg synaptic
+    sudo kill -9 $(pidof dpkg)
+    sudo kill -9 $(pidof synaptic)
+    sudo kill -9 $(pidof apt-get)
+    sudo kill -9 $(pidof apt)
+    sudo rm -rf /var/lib/dpkg/lock
+    sudo rm -rf /var/cache/apt/archives/lock  
+}
+
+if [ "$del" -eq "1" ]; then
+    clean
+fi
+
+path="/home/malkawi/Documents/updates/$(date +"%Y")/$(date +"%m")"
+
+mkdir -p $path
+
+file_name="$(date +"%d_%H:%M:%S").txt"
+
+msg=$'**********************************\nupdating ......\n**********************************'
+echo "$msg" | tee "$path/$file_name"
+sudo apt update 2>&1 | tee -a "$path/$file_name"
+
+msg=$'\n**********************************\navailable upgrades:\n**********************************'
+echo "$msg" | tee -a "$path/$file_name"
+apt list --upgradable 2>&1 | tee -a "$path/$file_name"
+
+if [ "$del" -eq "1" ]; then
+    clean
+fi
+
+msg=$'\n**********************************\nupgrading ......\n**********************************'
+echo "$msg" | tee -a "$path/$file_name"
+sudo apt upgrade 2>&1 | tee -a "$path/$file_name"
+
+if [ "$del" -eq "1" ]; then
+    clean
+fi
+
