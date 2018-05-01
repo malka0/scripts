@@ -24,7 +24,7 @@ if [ "$del" -eq "1" ]; then
     clean
 fi
 
-path="/home/{user}/Documents/updates/$(date +"%Y")/$(date +"%m")"
+path="~/Documents/updates/$(date +"%Y")/$(date +"%m")"
 
 mkdir -p $path
 
